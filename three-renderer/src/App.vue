@@ -1,5 +1,5 @@
 <script setup>
-import Renderer from './components/Renderer.vue'
+import ThreeScene from './components/ThreeScene.vue'
 </script>
 
 <template>
@@ -7,4 +7,9 @@ import Renderer from './components/Renderer.vue'
 </template>
 
 <style scoped>
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
 </style>
