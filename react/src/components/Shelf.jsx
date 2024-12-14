@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { useLoader } from '@react-three/fiber'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { TextureLoader } from 'three';
@@ -15,12 +15,8 @@ const Shelf = () =>{
         <primitive 
             object={gltf.scene} 
             scale={1} 
-            position={[0, 0, 0]} 
-        >
-            {/* {gltf.scene.children.map((child) => (
-                child.material && (child.material.map = woodTexture)
-            ))} */}
-        </primitive>
+            position={[0, -1.1, 1.5]} 
+        ></primitive>
     );
 }
 
