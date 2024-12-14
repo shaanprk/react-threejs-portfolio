@@ -1,37 +1,24 @@
-import {Canvas, useFrame} from "@react-three/fiber";
-import {OrbitControls} from "@react-three/drei";
-import {useRef} from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-const RotatingCube = () => {
-  const meshRef = useRef();
-
-  useFrame( () => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += 0.01;
-      meshRef.current.rotation.x += 0.01;
-    }
-  })
-
-  return (
-    <mesh ref={meshRef}>
-      <cylinderGeometry args={[1, 1, 1]} />
-      <meshLambertMaterial color='#468585' emissive="#468585" />
-    </mesh>
-  )
-}
+// Import Pages
+import Landing from "./pages/Landing.jsx";
+import Home from "./pages/Home.jsx";
+import About from "./pages/About.jsx";
+import Projects from "./pages/Projects.jsx";
+import DesignPhilosophy from "./pages/DesignPhilosophy.jsx";
 
 const App = () => {
   return (
-    <Canvas style= {{height: "100vh", width: '100vw', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-      <OrbitControls enableZoom enablePan enableRotate />
-
-      <directionalLight position={[1, 1, 1]} intensity={10} color={0x9CDBA6} />
-
-      <color attach="background" args={['#f0f0f0']} />
-
-      <RotatingCube />
-    </Canvas>
-  )
-}
+    <Router>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/design-philosophy" element={<DesignPhilosophy />} />
+      </Routes>
+    </Router>
+  );
+};
 
 export default App;
