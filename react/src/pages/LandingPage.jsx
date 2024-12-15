@@ -5,19 +5,28 @@ import { Canvas } from '@react-three/fiber'
 import Shelf from '../components/Shelf';
 import Light from '../components/Light';
 import Scroll from '../components/Scroll';
+import { AmbientLight } from 'three';
 
 const Landing = () => {
   return (
-    <div style={{ width: '100%', height: '100vh', background: 'green' }}>
+    <div style={{ width: '100%', height: '100vh', background: 'black' }}>
+      {/* <h1 className="text-white">HI</h1> */}
       <Canvas >
         {/* Lighting */}
-        <Light />
+        {/* <Light /> */}
+        <ambientLight />
 
         {/* Shelf */}
         <Shelf />
 
         {/* Scrolls */}
         <Scroll />
+
+        {/* Floor */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.1, 0]}>
+          <planeGeometry args={[10, 10]} />
+          <meshStandardMaterial color="gray" />
+        </mesh>
       </Canvas>
     </div>
   );
