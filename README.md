@@ -1,5 +1,5 @@
 <h1 align="center">
-  **React** + **Three.js** Personal Portfolio  
+  React + Three.js Personal Portfolio  
 </h1>
 
 <h4 align="center">
