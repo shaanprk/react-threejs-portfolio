@@ -12,7 +12,7 @@
          alt="React Badge">
   </a>
   <a href="https://threejs.org/">
-    <img src="https://img.shields.io/badge/v0.171.0-_?logo=threedotjs&logoColor=%23000000&label=React&color=%23000000"
+    <img src="https://img.shields.io/badge/v0.171.0-_?logo=threedotjs&logoColor=%23000000&label=Three.js&color=%23000000"
          alt="Three.js Badge">
   </a>
   <a href="https://expressjs.com/">
