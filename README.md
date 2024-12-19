@@ -20,11 +20,11 @@
          alt="Express.js Badge">
   </a>
   <a href="https://tailwindcss.com/">
-    <img src="https://img.shields.io/badge/Tailwind%20CSS-v3.4.13-_?logo=tailwindcss&labelColor=%20%2334485f&color=%2338bcf9"
+    <img src="https://img.shields.io/badge/v3.4.17-_?logo=tailwindcss&logoColor=%2306B6D4&label=Tailwind&color=%2306B6D4"
          alt="Tailwind CSS Badge">
   </a>
   <a href="https://vercel.com/home">
-    <img src="https://img.shields.io/badge/Vercel-Current-_?logo=vercel&labelColor=%20%2334485f&color=%23000101"
+    <img src="https://img.shields.io/badge/Recent-_?logo=vercel&logoColor=%23000000&label=Vercel&color=%23000000"
          alt="Vercel Badge">
   </a>
 </p>
