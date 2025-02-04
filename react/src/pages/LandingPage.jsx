@@ -5,6 +5,7 @@ import { Canvas } from '@react-three/fiber'
 import Shelf from '../components/Shelf';
 import Light from '../components/Light';
 import Scroll from '../components/Scroll';
+import NewScroll from '../components/NewScroll'
 import { AmbientLight } from 'three';
 
 const Landing = () => {
@@ -17,10 +18,11 @@ const Landing = () => {
         <ambientLight />
 
         {/* Shelf */}
-        <Shelf />
+        {/* <Shelf /> */}
 
         {/* Scrolls */}
-        <Scroll />
+        {/* <Scroll /> */}
+        <NewScroll />
 
         {/* Floor */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.1, 0]}>
