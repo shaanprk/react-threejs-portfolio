@@ -10,7 +10,7 @@ import { AmbientLight } from 'three';
 
 const Landing = () => {
   return (
-    <div style={{ width: '100%', height: '100vh', background: 'black' }}>
+    <div style={{ width: '100%', height: '100vh', background: 'gray' }}>
       {/* <h1 className="text-white">HI</h1> */}
       <Canvas >
         {/* Lighting */}
@@ -25,10 +25,10 @@ const Landing = () => {
         <NewScroll />
 
         {/* Floor */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.1, 0]}>
+        {/* <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.1, 0]}>
           <planeGeometry args={[10, 10]} />
           <meshStandardMaterial color="gray" />
-        </mesh>
+        </mesh> */}
       </Canvas>
     </div>
   );

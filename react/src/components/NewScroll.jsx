@@ -1,13 +1,63 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useLoader, useFrame, useThree } from '@react-three/fiber';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { Box3, Vector3, Raycaster, Vector2 } from 'three';
+import { Box3, Vector3, Raycaster, Vector2, AnimationMixer, AnimationUtils, LoopOnce } from 'three';
 
 import scrollModel from '../assets/models/test_scroll_v1.glb';
 
 const NewScroll = () => {
     // Import the Scroll model
     const gltf = useLoader(GLTFLoader, scrollModel);
+    const { scene, animations } = gltf;
+
+    // ----------------------------
+    // ANIMATION LOGIC
+    // ----------------------------
+    // const mixer = useRef(new AnimationMixer(scene));
+    const [mixer] = useState(() => new AnimationMixer());
+    const openActionRef = useRef(null);
+    const closeActionRef = useRef(null);
+
+    // Keep track of whether the scroll is currently open or closed
+    const [ isOpen, setIsOpen ] = useState(false);
+
+    useEffect(() => {
+        if (animations && animations.length > 0) {
+            const baseClip = animations[0]; // Main animation containing all frames
+
+            // Extract subclips for opening and closing animation sequences
+            const openClip = AnimationUtils.subclip(baseClip, 'Open_Clip', 39, 134);
+            const closeClip = AnimationUtils.subclip(baseClip, 'Close_Clip', 159, 254);
+
+            // CAssign animations to ref actions
+            openActionRef.current = mixer.clipAction(openClip, scene);
+            closeActionRef.current = mixer.clipAction(closeClip, scene);
+
+            // Set to play once and stay at last frame
+            openActionRef.current.setLoop(LoopOnce);
+            openActionRef.current.clampWhenFinished = true;
+            closeActionRef.current.setLoop(LoopOnce);
+            closeActionRef.current.clampWhenFinished = true;
+        }
+    }, [animations, scene]);
+
+    // Manage animation playback based on scroll state
+    useEffect(() => {
+        if (!isCentered) return;
+
+        if (isOpen) {
+            closeActionRef.current?.stop(); // Stop closing animation if playing
+            openActionRef.current?.reset().play(); // Play open animation
+        } else {
+            openActionRef.current?.stop(); // Stop opening animation if playing
+            closeActionRef.current?.reset().play(); // Play close animation
+        }
+    }, [isOpen]);
+
+    useFrame((_, delta) => {
+        mixer.update(delta);
+    });
+
 
     // Main references
     const modelRef = useRef();
@@ -28,7 +78,6 @@ const NewScroll = () => {
         scrollRef.current = gltf.scene.getObjectByName('Scroll');
         texturedKnotRef.current = gltf.scene.getObjectByName('textured_knot');
     }, [gltf]);
-
     
     const { camera, gl } = useThree();
 
@@ -57,7 +106,7 @@ const NewScroll = () => {
     // }, [gltf]);
 
     // ----------------------------
-    // RAYCAST SETUP
+    // RAYCAST LOGIC
     // ----------------------------
     const updateRayCaster = (e) => {
         mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -66,10 +115,8 @@ const NewScroll = () => {
     };
 
     // ----------------------------
-    // MOUSE SETUP
+    // MOUSE EVENTS
     // ----------------------------
-
-    // Handles ponter movement for hover detection
     const handlePointerMove = (e) => {
         updateRayCaster(e);
 
@@ -92,24 +139,31 @@ const NewScroll = () => {
         }
     };
 
-    // Handles click interaction to center the model
     const handlePointerClick = (e) => {
         updateRayCaster(e);
 
         const intersects = raycaster.intersectObjects(
             [
                 bottomRodRef.current,
-                hangingStringRef.current,
+                // hangingStringRef.current,
                 rodStringRef.current,
                 scrollRef.current,
-                texturedKnotRef.current
+                // texturedKnotRef.current
             ].filter(obj => obj) // Ensure valid objects
         );
 
         if (intersects.length > 0) {
+            // Figure out which mesh was actually clicked
+            const clickedObject = intersects[0].object;
+            if (isCentered &&
+                clickedObject === texturedKnotRef.current ||
+                clickedObject === hangingStringRef.current) {
+                setIsOpen(prev => !prev)
+            }
+
             setSelected((prev) => !prev);
             if (!isCentered) {
-                setTargetPosition([0, 0, 1]); // Move forward
+                setTargetPosition([0, 0, 3]); // Move forward
                 setTargetRotation([0, 0, 0]); // Rotate to face user
                 setIsCentered(true);
             } else {
