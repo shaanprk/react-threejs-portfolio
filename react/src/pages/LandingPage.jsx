@@ -21,7 +21,7 @@ const Landing = () => {
         {/* <Shelf /> */}
 
         {/* Scrolls */}
-        <Scroll />
+        {/* <Scroll /> */}
         <NewScroll />
 
         {/* Floor */}

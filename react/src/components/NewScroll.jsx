@@ -122,7 +122,7 @@ const NewScroll = () => {
 
     // Smooth animation to center model
     useFrame(() => {
-        if (pivotRef.current) {
+        if (pivotRef.current && !isDragging.current) {
             const [x, y, z] = pivotRef.current.position;
             const [tx, ty, tz] = targetPosition;
 
@@ -152,7 +152,7 @@ const NewScroll = () => {
             initialMouse.current = { x: e.clientX, y: e.clientY };
             initialRotation.current = pivotRef.current.rotation.toArray();
             isDragging.current = true;
-            gl.domEleemnt.addEventListener('mousemove', handleMouseMove);
+            gl.domElement.addEventListener('mousemove', handleMouseMove);
             gl.domElement.addEventListener('mouseup', handleMouseUp);
         }
     };
