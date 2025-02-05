@@ -83,7 +83,7 @@ const NewScroll = () => {
 
     // Interaction states
     const [ hovered, setHovered ] = useState(false);
-    const [ selected, setSelected ] = useState(false);
+    // const [ selected, setSelected ] = useState(false);
     const [ isCentered, setIsCentered ] = useState(false);
     const [ targetPosition, setTargetPosition ] = useState([0, 0, 0]);
     const [ targetRotation, setTargetRotation ] = useState([0, 0, 0]);
@@ -95,6 +95,7 @@ const NewScroll = () => {
     const initialMouse = useRef({ x: 0, y: 0});
     const initialRotation = useRef([0, 0, 0]);
     const isDragging = useRef(false);
+    const isDraggingBuffer = useRef(false);
 
     // Center the model's axis
     // useEffect(() => {
@@ -131,8 +132,10 @@ const NewScroll = () => {
             ].filter(obj => obj) // Ensure no null references
         );
         if (intersects.length > 0) {
-            setHovered(true); // Set hovered state
-            gl.domElement.style.cursor = 'pointer'; // Change cursor to pointer
+            // if (!isCentered) {
+                setHovered(true); // Set hovered state
+                gl.domElement.style.cursor = 'pointer'; // Change cursor to pointer
+            // } 
         } else {
             setHovered(false); // Reset hovered state
             gl.domElement.style.cursor = 'auto'; // Change cursor back to default
@@ -140,6 +143,8 @@ const NewScroll = () => {
     };
 
     const handlePointerClick = (e) => {
+        if (isDraggingBuffer.current) return;
+
         updateRayCaster(e);
 
         const intersects = raycaster.intersectObjects(
@@ -161,7 +166,7 @@ const NewScroll = () => {
                 setIsOpen(prev => !prev)
             }
 
-            setSelected((prev) => !prev);
+            // setSelected((prev) => !prev);
             if (!isCentered) {
                 setTargetPosition([0, 0, 3]); // Move forward
                 setTargetRotation([0, 0, 0]); // Rotate to face user
@@ -202,17 +207,24 @@ const NewScroll = () => {
     // DRAGGING/INSPECTING SETUP
     // ----------------------------
     const handleMouseDown = (e) => {
+        // if (hovered) { return }
         if (isCentered) {
             initialMouse.current = { x: e.clientX, y: e.clientY };
             initialRotation.current = pivotRef.current.rotation.toArray();
             isDragging.current = true;
+            isDraggingBuffer.current = true;
+
             gl.domElement.addEventListener('mousemove', handleMouseMove);
             gl.domElement.addEventListener('mouseup', handleMouseUp);
+
+            gl.domElement.style.cursor = 'grabbing';
         }
     };
 
     const handleMouseMove = (e) => {
         if (isDragging.current) {
+            gl.domElement.style.cursor = 'grabbing';
+
             const deltaX = e.clientX - initialMouse.current.x;
             const deltaY = e.clientY - initialMouse.current.y;
             const [rx, ry, rz] = initialRotation.current;
@@ -227,6 +239,13 @@ const NewScroll = () => {
 
     const handleMouseUp = () => {
         isDragging.current = false;
+
+        setTimeout(() => {
+            isDraggingBuffer.current = false;
+        }, 100);
+
+        gl.domElement.style.cursor = hovered ? 'grab' : 'auto';
+
         gl.domElement.removeEventListener('mousemove', handleMouseMove);
         gl.domElement.removeEventListener('mouseup', handleMouseUp);
     };
@@ -249,7 +268,7 @@ const NewScroll = () => {
             <primitive 
                 ref={modelRef} 
                 object={gltf.scene}
-                scale={selected ? 1.2 : 1}
+                scale={isCentered ? 1.2 : 1}
                 position={[0, 0, 0]} 
                 // scale={[1, 1, 1]} 
             />
