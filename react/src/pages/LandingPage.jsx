@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber'
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // Import models
 import Shelf from '../components/Shelf';
@@ -8,7 +9,29 @@ import Scroll from '../components/Scroll';
 import NewScroll from '../components/NewScroll'
 import { AmbientLight } from 'three';
 
+// Import content pages
+// import About from './About';
+
 const Landing = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [ activeScroll, setActiveScroll ] = useState(null);
+
+  const handleOpenScroll = (page) => {
+    setActiveScroll(page);
+    window.history.pushState({}, "", `/${page}`); // Updates URL without triggering navigation
+  }
+
+  useEffect(() => {
+    const path = location.pathname.replace("/", "");
+    const validPages = ["home", "about", "projects", "design-philosophy"];
+
+    if (validPages.includes(path)) {
+      setActiveScroll(path);
+    }
+  }, [location.pathname]);
+
   return (
     <div style={{ width: '100%', height: '100vh', background: 'gray' }}>
       {/* <h1 className="text-white">HI</h1> */}
@@ -22,7 +45,7 @@ const Landing = () => {
 
         {/* Scrolls */}
         {/* <Scroll /> */}
-        <NewScroll />
+        <NewScroll page="about" isActive={activeScroll === 'about'} onOpen={handleOpenScroll}/>
 
         {/* Floor */}
         {/* <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.1, 0]}>

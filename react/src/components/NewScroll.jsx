@@ -4,9 +4,23 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { Box3, Vector3, Raycaster, Vector2, AnimationMixer, AnimationUtils, LoopOnce } from 'three';
 import * as THREE from 'three';
 
+// URL change
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Html } from '@react-three/drei';
+
+
 import scrollModel from '../assets/models/test_scroll_v1.glb';
 
-const NewScroll = () => {
+const NewScroll = ({ page, isActive, onOpen }) => {
+    // URL handling
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // const handleOpenScroll = (page) => {
+    //     console.log("Navigating to: ", page);
+    //     navigate(`/${page}`);
+    // }
+
     // Import the Scroll model
     const gltf = useLoader(GLTFLoader, scrollModel);
     const { scene, animations } = gltf;
@@ -73,29 +87,6 @@ const NewScroll = () => {
     const handlePointerMoveDefault = (e) => {
         updateRayCaster(e);
 
-        // const intersects = raycaster.intersectObjects([pivotRef.current]);
-        const intersects = raycaster.intersectObjects(
-            [
-                bottomRodRef.current,
-                hangingStringRef.current,
-                rodStringRef.current,
-                scrollRef.current,
-                texturedKnotRef.current
-            ].filter(obj => obj) // Ensure no null references
-        );
-        if (intersects.length > 0) {
-            setHovered(true); // Set hovered state
-            gl.domElement.style.cursor = 'pointer'; // Change cursor to pointer
-        } else {
-            setHovered(false); // Reset hovered state
-            gl.domElement.style.cursor = 'auto'; // Change cursor back to default
-        }
-    };
-
-    const handlePointerMoveCentered = (e) => {
-        updateRayCaster(e);
-
-        // const intersects = raycaster.intersectObjects([pivotRef.current]);
         const intersects = raycaster.intersectObjects(
             [
                 bottomRodRef.current,
@@ -160,6 +151,10 @@ const NewScroll = () => {
     //     }
     // };
 
+    useEffect(() => {
+        setIsCentered(isActive);
+    }, [isActive]);
+
     const handlePointerClickDefault = (e) => {
         if (isDraggingBuffer.current) return;
     
@@ -199,10 +194,16 @@ const NewScroll = () => {
                     setTargetPosition([0, 2, 0]); // Move forward
                     setTargetRotation([0, 0, 0]); // Rotate to face user
                     setIsCentered(true);
+                    console.log("Centering Scroll.");
+                    onOpen(page); // Updates URL dynamically
+                    console.log("Updating URL to: ", page);
                 } else {
                     setTargetPosition([0, 2, 0]); // Reset position
                     setTargetRotation([0, 0, 0]); // Reset rotation
                     setIsCentered(false);
+                    console.log("Uncentering Scroll.");
+                    onOpen("");
+                    console.log("Updating URL to: ", "");
                 }
     
                 return prevIsOpen; // Return the correct state
@@ -250,7 +251,7 @@ const NewScroll = () => {
             ].filter(obj => obj) // Ensure valid objects
         );
 
-        if (intersects.length > 0) {
+        if (intersects.length > 0 || isOpen.current) {
             return;
         }
 
@@ -311,8 +312,8 @@ const NewScroll = () => {
         if (animations && animations.length > 0) {
             const baseClip = animations[0]; // Main animation containing all frames
 
-            console.log("BaseClip Duration (seconds):", baseClip.duration);
-            console.log("Total Keyframes:", baseClip.tracks[0]?.times.length); // Get frame count
+            // console.log("BaseClip Duration (seconds):", baseClip.duration);
+            // console.log("Total Keyframes:", baseClip.tracks[0]?.times.length); // Get frame count
 
             // Extract subclips for opening and closing animation sequences
             const openClip = AnimationUtils.subclip(baseClip, 'Open_Clip', 1, 200);
@@ -371,21 +372,12 @@ const NewScroll = () => {
     });
 
     useEffect(() => {
-        gl.domElement.addEventListener('pointermove', handlePointerMoveCentered);
+        gl.domElement.addEventListener('pointermove', handlePointerMoveDefault);
         gl.domElement.addEventListener('click', handlePointerClickDefault);
         gl.domElement.addEventListener('mousedown', handleMouseDown);
-        // if (!isCentered) {
-        //     gl.domElement.addEventListener('pointermove', handlePointerMoveDefault);
-        //     gl.domElement.addEventListener('click', handlePointerClickDefault);
-        // } else {
-        //     gl.domElement.addEventListener('pointermove', handlePointerMoveCentered);
-        //     gl.domElement.addEventListener('click', handlePointerClickDefault);
-        //     gl.domElement.addEventListener('mousedown', handleMouseDown);
-        // }
 
         return () => {
             gl.domElement.removeEventListener('pointermove', handlePointerMoveDefault);
-            gl.domElement.removeEventListener('pointermove', handlePointerMoveCentered);
             gl.domElement.removeEventListener('click', handlePointerClickDefault);
             gl.domElement.removeEventListener('mousedown', handleMouseDown);
         };
