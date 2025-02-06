@@ -51,7 +51,7 @@ const NewScroll = ({ page, isActive, onOpen }) => {
     const [ hovered, setHovered ] = useState(false);
     // const [ selected, setSelected ] = useState(false);
     const [ isCentered, setIsCentered ] = useState(false);
-    const [ targetPosition, setTargetPosition ] = useState([0, 2, 0]);
+    const [ targetPosition, setTargetPosition ] = useState([0, 0, 0]);
     const [ targetRotation, setTargetRotation ] = useState([0, 0, 0]);
 
     const raycaster = new Raycaster();
@@ -105,52 +105,6 @@ const NewScroll = ({ page, isActive, onOpen }) => {
         }
     };
 
-    // const handlePointerClickDefault = (e) => {
-    //     if (isDraggingBuffer.current) return;
-
-    //     updateRayCaster(e);
-
-    //     const intersects = raycaster.intersectObjects(
-    //         [
-    //             bottomRodRef.current,
-    //             hangingStringRef.current,
-    //             rodStringRef.current,
-    //             scrollRef.current,
-    //             texturedKnotRef.current
-    //         ].filter(obj => obj) // Ensure valid objects
-    //     );
-
-    //     if (intersects.length > 0) {
-    //         // Figure out which mesh was actually clicked
-    //         const clickedObject = intersects[0].object;
-    //         if (isCentered &&
-    //             clickedObject === texturedKnotRef.current ||
-    //             clickedObject === hangingStringRef.current) {
-    //             // setIsOpen(prev => !prev);
-    //             // console.log("Scroll is open:", isOpen);
-    //             setIsOpen(prev => {
-    //                 console.log("Scroll is now:", !prev);
-    //                 return !prev;
-    //             });
-    //             return;
-    //         }
-
-    //         if (isOpen) return;
-
-    //         // setSelected((prev) => !prev);
-    //         if (!isCentered) {
-    //             setTargetPosition([0, 2, 0]); // Move forward
-    //             setTargetRotation([0, 0, 0]); // Rotate to face user
-    //             setIsCentered(true);
-    //         } else {
-    //             if (isOpen) { return } // Prevent closing when scroll is closed
-    //             setTargetPosition([0, 2, 0]); // Reset position
-    //             setTargetRotation([0, 0, 0]); // Reset rotation
-    //             setIsCentered(false);
-    //         }
-    //     }
-    // };
-
     useEffect(() => {
         setIsCentered(isActive);
     }, [isActive]);
@@ -191,14 +145,14 @@ const NewScroll = ({ page, isActive, onOpen }) => {
     
                 // If it's not open, allow centering/uncentering
                 if (!isCentered) {
-                    setTargetPosition([0, 2, 0]); // Move forward
+                    setTargetPosition([0, 0, 2]); // Move forward
                     setTargetRotation([0, 0, 0]); // Rotate to face user
                     setIsCentered(true);
                     console.log("Centering Scroll.");
                     onOpen(page); // Updates URL dynamically
                     console.log("Updating URL to: ", page);
                 } else {
-                    setTargetPosition([0, 2, 0]); // Reset position
+                    setTargetPosition([0, 0, 0]); // Reset position
                     setTargetRotation([0, 0, 0]); // Reset rotation
                     setIsCentered(false);
                     console.log("Uncentering Scroll.");
@@ -363,6 +317,14 @@ const NewScroll = ({ page, isActive, onOpen }) => {
             }
         }
     }, [isCentered]);
+
+    useEffect(() => {
+        if (isActive) {
+            setIsCentered(true);
+            setTargetPosition([0, 0, 2]);
+            setTargetRotation([0, 0, 0]);
+        }
+    }, [isActive]);
     
     useFrame(() => {
         if (texturedKnotRef.current && isCentered) {
@@ -388,7 +350,7 @@ const NewScroll = ({ page, isActive, onOpen }) => {
             <primitive 
                 ref={modelRef} 
                 object={gltf.scene}
-                scale={isCentered ? 1.2 : 1}
+                scale={1}
                 position={[0, 0, 0]} 
                 // scale={[1, 1, 1]} 
             />
