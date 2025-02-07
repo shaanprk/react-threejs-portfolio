@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useLoader, useFrame, useThree } from '@react-three/fiber';
-// import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Box3, Vector3, Raycaster, Vector2, AnimationMixer, AnimationUtils, LoopOnce } from 'three';
 import * as THREE from 'three';
@@ -8,7 +7,6 @@ import * as THREE from 'three';
 import scrollModel from '../assets/models/test_scroll_v2.glb';
 
 const NewScrollv2 = ({ page, isActive, onOpen }) => {
-
     // Import the Scroll model
     const gltf = useLoader(GLTFLoader, scrollModel);
     const { scene, animations } = gltf;
@@ -37,7 +35,6 @@ const NewScrollv2 = ({ page, isActive, onOpen }) => {
 
     // Interaction states
     const [ hovered, setHovered ] = useState(false);
-    // const [ selected, setSelected ] = useState(false);
     const [ isCentered, setIsCentered ] = useState(false);
     const [ targetPosition, setTargetPosition ] = useState([0, 0, 0]);
     const [ targetRotation, setTargetRotation ] = useState([0, 0, 0]);
@@ -242,50 +239,47 @@ const NewScrollv2 = ({ page, isActive, onOpen }) => {
     // ----------------------------
     // ANIMATION LOGIC
     // ----------------------------
-    // // const mixer = useRef(new AnimationMixer(scene));
     const [mixer] = useState(() => new AnimationMixer(scene));
-    const openActionRef = useRef(null);
-    const closeActionRef = useRef(null);
-
-    // Keep track of whether the scroll is currently open or closed
+    const actionRef = useRef(null);
     const [ isOpen, setIsOpen ] = useState(false);
 
     useEffect(() => {
         if (animations && animations.length > 0) {
-            const baseClip = animations[0]; // Main animation containing all frames
-
-            // console.log("BaseClip Duration (seconds):", baseClip.duration);
-            // console.log("Total Keyframes:", baseClip.tracks[0]?.times.length); // Get frame count
-
-            // Extract subclips for opening and closing animation sequences
+            const baseClip = animations[0]; // Full animation (1-400)
+    
+            // Extract only the first 200 frames (opening animation)
             const openClip = AnimationUtils.subclip(baseClip, 'Open_Clip', 1, 200);
-            const closeClip = AnimationUtils.subclip(baseClip, 'Close_Clip', 200, 400);
-
-            // CAssign animations to ref actions
-            openActionRef.current = mixer.clipAction(openClip, scene);
-            closeActionRef.current = mixer.clipAction(closeClip, scene);
-
-            // Set to play once and stay at last frame
-            openActionRef.current.setLoop(LoopOnce);
-            openActionRef.current.clampWhenFinished = true;
-            closeActionRef.current.setLoop(LoopOnce);
-            closeActionRef.current.clampWhenFinished = true;
+    
+            actionRef.current = mixer.clipAction(openClip, scene);
+            actionRef.current.setLoop(LoopOnce);
+            actionRef.current.clampWhenFinished = true;
+            actionRef.current.setDuration(2); // Set duration to match 200 frames worth of time
+    
+            mixer.timeScale = 1.5; // Adjust playback speed if needed
         }
     }, [animations, scene]);
-
-    // Manage animation playback based on scroll state
+    
     useEffect(() => {
-        if (!isCentered) return;
-
+        if (!actionRef.current) return;
+    
+        const action = actionRef.current;
+        const currentTime = action.time; // Get current animation progress
+        const duration = action.getClip().duration; // Total length (first 200 frames)
+    
         if (isOpen) {
-            closeActionRef.current?.stop(); // Stop closing animation if playing
-            openActionRef.current?.reset().play(); // Play open animation
+            action.setEffectiveTimeScale(1); // Forward playback
+            action.paused = false;
+            action.play();
         } else {
-            openActionRef.current?.stop(); // Stop opening animation if playing
-            closeActionRef.current?.reset().play(); // Play close animation
+            action.setEffectiveTimeScale(-1); // Reverse playback
+            action.paused = false;
+            action.play();
         }
+    
+        // Ensure animation does not exceed 200-frame cap
+        action.time = Math.min(action.time, duration);
     }, [isOpen]);
-
+    
     useFrame((_, delta) => {
         mixer.update(delta);
     });
@@ -297,7 +291,7 @@ const NewScrollv2 = ({ page, isActive, onOpen }) => {
             if (isCentered) {
                 // Apply glow effect when centered
                 texturedKnotRef.current.material.emissive = new THREE.Color(0xffffff); // Yellow glow
-                texturedKnotRef.current.material.emissiveIntensity = 10; // Adjust intensity
+                texturedKnotRef.current.material.emissiveIntensity = 1; // Adjust intensity
             } else {
                 // Remove glow effect when not centered
                 texturedKnotRef.current.material.emissive = new THREE.Color(0x000000); // No glow
