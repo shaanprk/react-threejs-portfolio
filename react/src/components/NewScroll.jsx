@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useLoader, useFrame, useThree } from '@react-three/fiber';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+// import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Box3, Vector3, Raycaster, Vector2, AnimationMixer, AnimationUtils, LoopOnce } from 'three';
 import * as THREE from 'three';
 

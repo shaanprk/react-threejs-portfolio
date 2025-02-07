@@ -6,7 +6,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Shelf from '../components/Shelf';
 import Light from '../components/Light';
 import Scroll from '../components/Scroll';
-import NewScroll from '../components/NewScroll'
+// import NewScroll from '../components/NewScroll'
+import NewScroll from '../components/NewScrollv2';
 import { AmbientLight } from 'three';
 
 // Import content pages

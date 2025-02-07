@@ -11,11 +11,12 @@
     "format": "prettier --write \"src/**/*.{js,jsx}\""
   },
   "dependencies": {
-    "@react-three/drei": "^9.0.1",
+    "@react-three/drei": "^9.121.4",
     "@types/three": "^0.170.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.0.2",
+    "three": "^0.173.0",
     "threejs-object-controls": "^1.2.8"
   },
   "devDependencies": {
