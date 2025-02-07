@@ -178,6 +178,11 @@ const NewScrollv2 = ({ page, isActive, onOpen }) => {
     // // DRAGGING/INSPECTING SETUP
     // // ----------------------------
     const handleMouseDown = (e) => {
+        if (isOpenRef.current) {
+            console.log("Scroll is open. Preventing dragging.");
+            return;
+        }
+
         updateRayCaster(e);
         
         const intersects = raycaster.intersectObjects(
@@ -190,7 +195,7 @@ const NewScrollv2 = ({ page, isActive, onOpen }) => {
             ].filter(obj => obj) // Ensure valid objects
         );
 
-        if (intersects.length > 0 || isOpen.current) {
+        if (intersects.length > 0) {
             return;
         }
 
@@ -326,6 +331,16 @@ const NewScrollv2 = ({ page, isActive, onOpen }) => {
             gl.domElement.removeEventListener('mousedown', handleMouseDown);
         };
     }, [gl.domElement, isCentered]);
+
+
+
+    // TEST
+
+    const isOpenRef = useRef(isOpen);
+    useEffect(() => {
+        isOpenRef.current = isOpen;
+        console.log("isOpenRef updated:", isOpenRef.current);
+    }, [isOpen]);
 
     return (
         <group ref={pivotRef}>
