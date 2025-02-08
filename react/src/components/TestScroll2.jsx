@@ -12,7 +12,7 @@ import {
 } from "three";
 import * as THREE from "three";
 
-import scrollModel from "../assets/models/test_scroll_v2_2.glb";
+import scrollModel from "../assets/models/YellowScroll.glb";
 
 const TestScroll2 = ({ page, isActive, onOpen }) => {
   // Load the scroll model
@@ -26,14 +26,14 @@ const TestScroll2 = ({ page, isActive, onOpen }) => {
 
   // Child mesh refs from glTF
   const bottomRodRef = useRef();
-  const hangingStringRef = useRef();
+  // const hangingStringRef = useRef();
   const rodStringRef = useRef();
   const scrollRef = useRef();
   const texturedKnotRef = useRef();
 
   useEffect(() => {
     bottomRodRef.current = gltf.scene.getObjectByName("bottom_rod");
-    hangingStringRef.current = gltf.scene.getObjectByName("hanging_string");
+    // hangingStringRef.current = gltf.scene.getObjectByName("hanging_string");
     rodStringRef.current = gltf.scene.getObjectByName("rod_string");
     scrollRef.current = gltf.scene.getObjectByName("Scroll");
     texturedKnotRef.current = gltf.scene.getObjectByName("WideKnot");
@@ -190,12 +190,24 @@ const TestScroll2 = ({ page, isActive, onOpen }) => {
     }
   }, [isCentered]);
 
+  // useFrame(() => {
+  //   if (texturedKnotRef.current && isCentered) {
+  //     const intensity = 0.5 + Math.sin(Date.now() * 0.0025) * 0.5;
+  //     texturedKnotRef.current.material.emissiveIntensity = intensity;
+  //   }
+  // });
+  
   useFrame(() => {
     if (texturedKnotRef.current && isCentered) {
-      const intensity = 0.5 + Math.sin(Date.now() * 0.0025) * 0.5;
-      texturedKnotRef.current.material.emissiveIntensity = intensity;
+      const time = Date.now() * 0.0025; // Adjust speed
+      // Use 0.5 ± 0.3 range for a subtle effect
+      const emissivePulse = 0.5 + 0.5 * Math.sin(time);
+      texturedKnotRef.current.material.emissiveIntensity = emissivePulse;
     }
   });
+  
+  
+  
 
   // Dynamic positioning logic.
   useEffect(() => {
@@ -217,7 +229,7 @@ const TestScroll2 = ({ page, isActive, onOpen }) => {
     } else {
       setIsCentered(false);
       setTargetPosition([0, 1, 0]);
-      setTargetRotation([0, 0, 0]);
+      setTargetRotation([1, 0, 0]);
       console.log(`Uncentering [${page}] Scroll.`);
     }
   }, [isActive, scrollSize, size, camera.fov, camera.aspect, camera.position.z, page, onOpen]);
