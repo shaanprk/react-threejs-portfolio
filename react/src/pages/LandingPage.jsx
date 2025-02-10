@@ -3,7 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // Import scroll components
-import TestScroll1 from "../components/TestScroll1";
+import AboutScroll from "../components/AboutScroll";
 import TestScroll2 from "../components/TestScroll2";
 
 const Landing = () => {
@@ -28,7 +28,7 @@ const Landing = () => {
     <div style={{ width: "100%", height: "100vh", background: "gray" }}>
       <Canvas>
         <ambientLight />
-        <TestScroll1
+        <AboutScroll
           page="about"
           isActive={activeScroll === "about"}
           onOpen={handleOpenScroll}

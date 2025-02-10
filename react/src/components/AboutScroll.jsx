@@ -502,7 +502,7 @@ const TestScroll1 = ({ page, isActive, onOpen }) => {
         // background width = 2 * distance * tan(horizontalFOV/2)
         // Thus, ideal distance = bgWidth / (2 * tan(horizontalFOV/2))
         // Use an adjustment factor of 0.7 to move the scroll closer.
-        const adjustmentFactor = 0.7;
+        const adjustmentFactor = 0.705;
         const desiredDistance = (bgWidth / (2 * Math.tan(horizontalFOV / 2))) * adjustmentFactor;
         targetZ = camera.position.z - desiredDistance;
         // Log debugging info.
@@ -542,8 +542,8 @@ const TestScroll1 = ({ page, isActive, onOpen }) => {
   // Update the pivot (position/rotation) each frame.
   useFrame(() => {
     if (pivotRef.current && !isDragging.current) {
-      // Use a slower interpolation factor when the scroll is open (zoom in)
-      const lerpFactor = isOpen ? 0.02 : 0.1;
+      // Use the same (slower) interpolation factor for both zooming in and out.
+      const lerpFactor = 0.02;
       const [x, y, z] = pivotRef.current.position.toArray();
       const [tx, ty, tz] = targetPosition;
       pivotRef.current.position.set(
