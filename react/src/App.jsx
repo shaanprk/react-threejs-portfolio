@@ -2,11 +2,11 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useParams } from "rea
 
 // Import Pages
 import LandingPage from "./pages/LandingPage.jsx";
-import Home from "./pages/Home.jsx";
-import About from "./pages/AboutPage.jsx";
-import Projects from "./pages/Projects.jsx";
-import DesignPhilosophy from "./pages/DesignPhilosophy.jsx";
-import NotFound from "./pages/NotFound.jsx";
+import HomePage from "./pages/HomePage.jsx";
+import AboutPage from "./pages/AboutPage.jsx";
+import ProjectsPage from "./pages/ProjectsPage.jsx";
+import DesignPhilosophyPage from "./pages/DesignPhilosophyPage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
 
 const validPages = ["home", "about", "projects", "design-philosophy"];
 
@@ -29,7 +29,7 @@ const App = () => {
         <Route path="/:page" element={<PageWrapper />} />
 
         {/* Redirect invalid routes to 404 */}
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );

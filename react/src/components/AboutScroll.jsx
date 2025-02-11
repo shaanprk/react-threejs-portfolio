@@ -336,7 +336,7 @@ import * as THREE from "three";
 import scrollModel from "../assets/models/GreenScroll.glb";
 
 // About Scroll
-const TestScroll1 = ({ page, isActive, onOpen }) => {
+const AboutScroll = ({ page, isActive, onOpen }) => {
   // Load the scroll model
   const gltf = useLoader(GLTFLoader, scrollModel);
   const { scene, animations } = gltf;
@@ -543,7 +543,7 @@ const TestScroll1 = ({ page, isActive, onOpen }) => {
   useFrame(() => {
     if (pivotRef.current && !isDragging.current) {
       // Use the same (slower) interpolation factor for both zooming in and out.
-      const lerpFactor = 0.02;
+      const lerpFactor = 0.07;
       const [x, y, z] = pivotRef.current.position.toArray();
       const [tx, ty, tz] = targetPosition;
       pivotRef.current.position.set(
@@ -679,4 +679,4 @@ const TestScroll1 = ({ page, isActive, onOpen }) => {
   );
 };
 
-export default TestScroll1;
+export default AboutScroll;
