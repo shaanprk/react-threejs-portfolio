@@ -185,6 +185,7 @@ const LandingPage = () => {
   // This timeline fades in the overlay, then sets activePage.
   const handleKnotClick = (page) => {
     gsap.timeline({
+      delay: 0.5,
       defaults: { duration: 1, ease: "power2.inOut" },
       onComplete: () => {
         // Once the overlay is fully opaque, set the active page.
