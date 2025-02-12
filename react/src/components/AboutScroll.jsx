@@ -336,7 +336,7 @@ import * as THREE from "three";
 import scrollModel from "../assets/models/GreenScroll.glb";
 
 // About Scroll
-const AboutScroll = ({ page, isActive, onOpen }) => {
+const AboutScroll = ({ page, isActive, onCenter, onKnotClick }) => {
   // Load the scroll model
   const gltf = useLoader(GLTFLoader, scrollModel);
   const { scene, animations } = gltf;
@@ -346,7 +346,7 @@ const AboutScroll = ({ page, isActive, onOpen }) => {
   const pivotRef = useRef();
   const bgPlaneRef = useRef();
 
-  // Child mesh refs from glTF
+  // Child mesh refs
   const bottomRodRef = useRef();
   const topRodRef = useRef();
   const backgroundRef = useRef();
@@ -536,7 +536,7 @@ const AboutScroll = ({ page, isActive, onOpen }) => {
     camera.aspect,
     camera.position.z,
     page,
-    onOpen,
+    onCenter,
   ]);
 
   // Update the pivot (position/rotation) each frame.
@@ -603,7 +603,13 @@ const AboutScroll = ({ page, isActive, onOpen }) => {
     );
     if (isCentered && knotClicked) {
       // Toggle the "open" state which now also triggers the zoom-in effect.
-      setIsOpen((prev) => !prev);
+      setIsOpen((prev) => {
+        const newState = !prev;
+        if (newState) {
+          onKnotClick(page);
+        }
+        return newState;
+      });
       return;
     }
     if (isCentered && sectionClicked) {
@@ -616,10 +622,10 @@ const AboutScroll = ({ page, isActive, onOpen }) => {
       }
       if (!isCentered) {
         setIsCentered(true);
-        onOpen(page);
+        onCenter(page);
         console.log("Updating URL to:", page);
       } else {
-        onOpen("");
+        onCenter("");
         setIsCentered(false);
         console.log("Updating URL to:", "");
       }

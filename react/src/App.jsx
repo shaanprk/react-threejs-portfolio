@@ -2,11 +2,11 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useParams } from "rea
 
 // Import Pages
 import LandingPage from "./pages/LandingPage.jsx";
-import HomePage from "./pages/HomePage.jsx";
-import AboutPage from "./pages/AboutPage.jsx";
-import ProjectsPage from "./pages/ProjectsPage.jsx";
-import DesignPhilosophyPage from "./pages/DesignPhilosophyPage.jsx";
-import NotFoundPage from "./pages/NotFoundPage.jsx";
+import HomePage from "./pages/Home/HomePage.jsx";
+import AboutPage from "./pages/About/AboutPage.jsx";
+import ProjectsPage from "./pages/Projects/ProjectsPage.jsx";
+import DesignPhilosophyPage from "./pages/Philosophy/PhilosophyPage.jsx";
+import NotFoundPage from "./pages/NotFound/NotFoundPage.jsx";
 
 const validPages = ["home", "about", "projects", "design-philosophy"];
 
