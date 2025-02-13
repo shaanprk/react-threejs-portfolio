@@ -55,6 +55,15 @@
 //     }
 //   }, [gltf.scene]);
 
+//   // Also compute the full bounding box to get the top of the scroll.
+//   const [scrollBox, setScrollBox] = useState(null);
+//   useEffect(() => {
+//     if (gltf.scene) {
+//       const box = new Box3().setFromObject(gltf.scene);
+//       setScrollBox(box);
+//     }
+//   }, [gltf.scene]);
+
 //   const { camera, size } = useThree();
 
 //   // Interaction states
@@ -70,6 +79,13 @@
 //   const initialMouse = useRef({ x: 0, y: 0 });
 //   const initialRotation = useRef([0, 0, 0]);
 //   const isDragging = useRef(false);
+
+//   // Helper: Convert pixel offset to world units at a given distance
+//   const pixelsToWorldUnits = (pixels, camera, distance, screenHeight) => {
+//     const vFOV = (camera.fov * Math.PI) / 180; // vertical FOV in radians
+//     const frustumHeight = 2 * distance * Math.tan(vFOV / 2);
+//     return (pixels / screenHeight) * frustumHeight;
+//   };
 
 //   // --- Global pointer handlers for dragging ---
 //   const handleGlobalPointerMove = (e) => {
@@ -109,7 +125,7 @@
 //     initialRotation.current = pivotRef.current.rotation.toArray();
 //     isDragging.current = true;
 //     document.body.style.cursor = "grabbing";
-//     // Add global pointer listeners so dragging continues even if the cursor goes over the scroll.
+//     // Add global pointer listeners so dragging continues even if the cursor leaves the scroll.
 //     window.addEventListener("pointermove", handleGlobalPointerMove);
 //     window.addEventListener("pointerup", handleGlobalPointerUp);
 //     e.stopPropagation();
@@ -151,9 +167,9 @@
 
 //   // --- Updated Dynamic Positioning Logic ---
 //   // When the scroll is active, we position it so that:
-//   // - Normally the whole scroll (scrollSize.x) is set to 80% of the screen (using factor 1.6)
-//   // - BUT when the scroll is open (knot clicked) we compute the target Z
-//   //   such that the background (backgroundRef) fills 100% of the screen width.
+//   // - Normally the scroll occupies ~80% of the screen.
+//   // - When open (knot clicked), we zoom in so that the background fills the screen width
+//   //   and shift the scroll upward by half the screen height (converted from pixels to world units).
 //   useEffect(() => {
 //     if (!scrollSize) return;
 //     const aspect = camera.aspect;
@@ -166,44 +182,35 @@
 //       computedD = scrollSize.x / (1.6 * Math.tan(verticalFOVRad / 2) * aspect);
 //     }
 //     let targetZ;
+//     let targetY = 0; // default Y offset
+
 //     if (isActive) {
-//       // When the scroll is open (via knot click) we want to “zoom in”
-//       // so that the background fills the screen width.
-//       if (isOpen && backgroundRef.current) {
-//         // Compute the background's bounding box and extract its width (in world units)
+//       if (isOpen && backgroundRef.current && scrollBox) {
+//         // "Zoom in" logic based on background width:
 //         const bgBox = new Box3().setFromObject(backgroundRef.current);
 //         const bgSizeVec = new Vector3();
 //         bgBox.getSize(bgSizeVec);
 //         const bgWidth = bgSizeVec.x;
-//         // Compute horizontal FOV from the vertical FOV and aspect ratio.
 //         const horizontalFOV = 2 * Math.atan(Math.tan(verticalFOVRad / 2) * camera.aspect);
-//         // To fill the screen horizontally, we need:
-//         // background width = 2 * distance * tan(horizontalFOV/2)
-//         // Thus, ideal distance = bgWidth / (2 * tan(horizontalFOV/2))
-//         // Use an adjustment factor of 0.7 to move the scroll closer.
-//         const adjustmentFactor = 0.705;
+//         // const adjustmentFactor = 0.705;
+//         const adjustmentFactor = 0.575;
 //         const desiredDistance = (bgWidth / (2 * Math.tan(horizontalFOV / 2))) * adjustmentFactor;
 //         targetZ = camera.position.z - desiredDistance;
-//         // Log debugging info.
-//         console.log(`Zooming in scroll (knot clicked):`);
-//         console.log(`  Background width (world units): ${bgWidth}`);
-//         console.log(`  Screen width (pixels): ${size.width}`);
-//         console.log(`  horizontalFOV (radians): ${horizontalFOV}`);
-//         console.log(`  Ideal distance: ${bgWidth / (2 * Math.tan(horizontalFOV / 2))}`);
-//         console.log(`  Adjusted desired distance (with factor ${adjustmentFactor}): ${desiredDistance}`);
-//         console.log(`  Computed targetZ: ${targetZ}`);
+//         // Convert half the screen height (in pixels) to world units at the desired distance.
+//         const pixelOffset = size.height / 1.5;
+//         targetY = pixelsToWorldUnits(pixelOffset, camera, desiredDistance, size.height);
+//         console.log(`Converted targetY offset from ${pixelOffset} pixels: ${targetY} world units`);
 //       } else {
-//         // Normal centering (80% of screen)
 //         targetZ = camera.position.z - computedD;
 //       }
 //       setIsCentered(true);
-//       setTargetPosition([0, 0, targetZ]);
+//       setTargetPosition([0, targetY, targetZ]);
 //       setTargetRotation([0, 0, 0]);
-//       console.log(`Centering [${page}] Scroll with target Z:`, targetZ);
+//       console.log(`Centering [${page}] Scroll with target Z: ${targetZ}`);
 //     } else {
 //       setIsCentered(false);
 //       setTargetPosition([0, 0, 0]);
-//       setTargetRotation([1, 0, 0]);
+//       setTargetRotation([0, 0, 0]);
 //       console.log(`Uncentering [${page}] Scroll.`);
 //     }
 //   }, [
@@ -216,12 +223,12 @@
 //     camera.position.z,
 //     page,
 //     onCenter,
+//     scrollBox,
 //   ]);
 
 //   // Update the pivot (position/rotation) each frame.
 //   useFrame(() => {
 //     if (pivotRef.current && !isDragging.current) {
-//       // Use the same (slower) interpolation factor for both zooming in and out.
 //       const lerpFactor = 0.07;
 //       const [x, y, z] = pivotRef.current.position.toArray();
 //       const [tx, ty, tz] = targetPosition;
@@ -240,7 +247,6 @@
 //       );
 //     }
 //     mixer.update(0.016);
-//     // Update the background plane to follow the pivot.
 //     if (bgPlaneRef.current && pivotRef.current) {
 //       const worldPos = new THREE.Vector3();
 //       pivotRef.current.getWorldPosition(worldPos);
@@ -264,8 +270,7 @@
 
 //   useFrame(() => {
 //     if (knotRef.current && isCentered) {
-//       const time = Date.now() * 0.0025; // Adjust speed
-//       // Use 0.5 ± 0.5 range for a subtle pulsating effect
+//       const time = Date.now() * 0.0025;
 //       const emissivePulse = 0.5 + 0.5 * Math.sin(time);
 //       knotRef.current.material.emissiveIntensity = emissivePulse;
 //     }
@@ -281,7 +286,6 @@
 //       (intersect) => intersect.object === contentRef.current
 //     );
 //     if (isCentered && knotClicked) {
-//       // Toggle the "open" state which now also triggers the zoom-in effect.
 //       setIsOpen((prev) => {
 //         const newState = !prev;
 //         if (newState) {
@@ -329,8 +333,6 @@
 //       <mesh ref={bgPlaneRef} onPointerDown={handleBackgroundPointerDown}>
 //         <planeGeometry args={[100, 100]} />
 //         <meshBasicMaterial transparent opacity={0} />
-//         {/* For debugging you could uncomment the following line to see the plane:
-//             <meshBasicMaterial color="white" transparent opacity={0.3} /> */}
 //       </mesh>
 
 //       {/* Pivot group containing the scroll model */}
@@ -341,12 +343,10 @@
 //           scale={1}
 //           position={[0, 0, 0]}
 //           onPointerDown={(e) => {
-//             // Prevent starting drag if the pointer is over the scroll.
 //             e.stopPropagation();
 //           }}
 //           onPointerOver={(e) => {
 //             e.stopPropagation();
-//             // Only update cursor if not dragging.
 //             if (!isDragging.current) {
 //               document.body.style.cursor = "pointer";
 //             }
@@ -449,13 +449,6 @@ const AboutScroll = ({ page, isActive, onCenter, onKnotClick }) => {
   const initialRotation = useRef([0, 0, 0]);
   const isDragging = useRef(false);
 
-  // Helper: Convert pixel offset to world units at a given distance
-  const pixelsToWorldUnits = (pixels, camera, distance, screenHeight) => {
-    const vFOV = (camera.fov * Math.PI) / 180; // vertical FOV in radians
-    const frustumHeight = 2 * distance * Math.tan(vFOV / 2);
-    return (pixels / screenHeight) * frustumHeight;
-  };
-
   // --- Global pointer handlers for dragging ---
   const handleGlobalPointerMove = (e) => {
     if (isDragging.current) {
@@ -483,18 +476,15 @@ const AboutScroll = ({ page, isActive, onCenter, onKnotClick }) => {
 
   // --- Background plane pointer handler: start dragging ---
   const handleBackgroundPointerDown = (e) => {
-    // Only allow dragging if the scroll is centered.
     if (!isCentered) return;
     if (isOpenRef.current) {
       console.log("Scroll is open. Preventing dragging.");
       return;
     }
-
     initialMouse.current = { x: e.clientX, y: e.clientY };
     initialRotation.current = pivotRef.current.rotation.toArray();
     isDragging.current = true;
     document.body.style.cursor = "grabbing";
-    // Add global pointer listeners so dragging continues even if the cursor leaves the scroll.
     window.addEventListener("pointermove", handleGlobalPointerMove);
     window.addEventListener("pointerup", handleGlobalPointerUp);
     e.stopPropagation();
@@ -508,7 +498,6 @@ const AboutScroll = ({ page, isActive, onCenter, onKnotClick }) => {
   useEffect(() => {
     if (animations && animations.length > 0) {
       const baseClip = animations[0];
-      // Extract the first 200 frames (opening animation)
       const openClip = AnimationUtils.subclip(baseClip, "Open_Clip", 1, 200);
       actionRef.current = mixer.clipAction(openClip, scene);
       actionRef.current.setLoop(LoopOnce);
@@ -538,36 +527,43 @@ const AboutScroll = ({ page, isActive, onCenter, onKnotClick }) => {
   // When the scroll is active, we position it so that:
   // - Normally the scroll occupies ~80% of the screen.
   // - When open (knot clicked), we zoom in so that the background fills the screen width
-  //   and shift the scroll upward by half the screen height (converted from pixels to world units).
+  //   and then shift the scroll upward by a fixed fraction of the visible view height.
   useEffect(() => {
     if (!scrollSize) return;
     const aspect = camera.aspect;
     const verticalFOVRad = (camera.fov * Math.PI) / 180;
     let computedD;
-    // Normal positioning: scroll occupies ~80% of the screen.
     if (size.width >= size.height) {
       computedD = scrollSize.x / (1.6 * Math.tan(verticalFOVRad / 2));
     } else {
       computedD = scrollSize.x / (1.6 * Math.tan(verticalFOVRad / 2) * aspect);
     }
     let targetZ;
-    let targetY = 0; // default Y offset
+    let targetY = 0;
 
     if (isActive) {
       if (isOpen && backgroundRef.current && scrollBox) {
-        // "Zoom in" logic based on background width:
         const bgBox = new Box3().setFromObject(backgroundRef.current);
         const bgSizeVec = new Vector3();
         bgBox.getSize(bgSizeVec);
         const bgWidth = bgSizeVec.x;
         const horizontalFOV = 2 * Math.atan(Math.tan(verticalFOVRad / 2) * camera.aspect);
-        const adjustmentFactor = 0.705;
+        // const adjustmentFactor = 0.705;
+        const adjustmentFactor = 0.575;
         const desiredDistance = (bgWidth / (2 * Math.tan(horizontalFOV / 2))) * adjustmentFactor;
         targetZ = camera.position.z - desiredDistance;
-        // Convert half the screen height (in pixels) to world units at the desired distance.
-        const pixelOffset = size.height / 1.5;
-        targetY = pixelsToWorldUnits(pixelOffset, camera, desiredDistance, size.height);
-        console.log(`Converted targetY offset from ${pixelOffset} pixels: ${targetY} world units`);
+        // Compute the frustum height at the desired distance:
+        const frustumHeight = 2 * desiredDistance * Math.tan(verticalFOVRad / 2);
+        // Use a fixed fraction (e.g. 0.5 for 50% of the view height) for the shift:
+        const r = size.height / size.width;
+        const fraction = r > 1
+                          ? 0.61 - 0.1 * (r - 1.63)
+                          : 1.085 - (r - 0.5);
+        console.log(size.height, size.width, size.height / size.width)
+        targetY = fraction * frustumHeight;
+        console.log(
+          `Using proportional targetY: ${targetY} (fraction: ${fraction}, frustumHeight: ${frustumHeight})`
+        );
       } else {
         targetZ = camera.position.z - computedD;
       }

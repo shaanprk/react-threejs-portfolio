@@ -66,7 +66,7 @@ const AboutPage = () => {
           <br />
           <p>Hi</p>
           <br />
-          <p>Hi</p>
+          <p>Hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii</p>
           <br />
           <p>Hi</p>
           <br />
@@ -126,6 +126,9 @@ const AboutPage = () => {
           <br />
           <p>Hi</p>
           <br />
+          <p>Hi</p>
+          <p>Hi</p>
+          <p>Hi</p>
         </div>
       </div>
     </div>

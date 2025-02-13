@@ -4,21 +4,20 @@
 
 .background {
     background-image: url('../../assets/images/About/Pattern_1.1.jpg');
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    padding-top: 8.5%;
-    padding-bottom: 8.5%;
+    padding-top: 10vh;
+    padding-bottom: 10%;
+    /* background-size: cover; */
+    background-repeat: repeat;
 }
 
 .content {
     background: white;
     background-image: url('../../assets/images/About/Background_1.png');
-    width: 90%;
+    width: 95%;
     margin: 0 auto;
-    height: 100vh;
-}
-
-h1 {
-
+    min-height: 100vh;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-position: bottom right;
 }
