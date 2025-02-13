@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { Suspense, useEffect, useState, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Preload } from "@react-three/drei";
-import { useLocation } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import gsap from "gsap";
 
 // Import scroll model components
 import AboutScroll from "../components/AboutScroll";
 import TestScroll2 from "../components/TestScroll2";
+import Loader from '../components/Loader';
 
 // Import HTML page components
 import HomePage from "./Home/HomePage";
@@ -24,9 +25,20 @@ const LandingPage = () => {
   const overlayRef = useRef();
   const contentRef = useRef(); // container for the new HTML page
 
+  // const handleCenteredScroll = (page) => {
+  //   setCenteredScroll(page);
+  //   window.history.pushState({}, "", `/centered/${page}`);
+  // };
+
+  //tester
+  const [searchParams, setSearchParams] = useSearchParams();
   const handleCenteredScroll = (page) => {
     setCenteredScroll(page);
-    window.history.pushState({}, "", `/${page}`);
+    setSearchParams({ centered: page });
+  };
+  const handleUncenter = () => {
+    setCenteredScroll(null);
+    setSearchParams({});
   };
 
   // Callback for when the knot is clicked in a scroll.
@@ -38,6 +50,7 @@ const LandingPage = () => {
       onComplete: () => {
         // Once the overlay is fully opaque, set the active page.
         setActivePage(page);
+        window.history.pushState({}, "", `/${page}`);
       },
     }).to(overlayRef.current, { opacity: 1 });
   };
@@ -55,13 +68,28 @@ const LandingPage = () => {
   }, [activePage]);
 
   // Update centeredScroll if the URL changes.
+  // useEffect(() => {
+  //   const path = location.pathname.replace("/", "");
+  //   const validPages = ["home", "about", "projects", "design-philosophy"];
+  //   if (validPages.includes(path)) {
+  //     setCenteredScroll(path);
+  //   }
+  // }, [location.pathname]);
   useEffect(() => {
-    const path = location.pathname.replace("/", "");
     const validPages = ["home", "about", "projects", "design-philosophy"];
-    if (validPages.includes(path)) {
-      setCenteredScroll(path);
+    // Check query parameters first
+    const centeredParam = searchParams.get("centered");
+    if (centeredParam && validPages.includes(centeredParam)) {
+      setCenteredScroll(centeredParam);
+    } else {
+      // Fallback to checking pathname if no query parameter exists
+      const path = location.pathname.replace("/", "");
+      if (validPages.includes(path)) {
+        setActivePage(path);
+      }
     }
-  }, [location.pathname]);
+  }, [location.pathname, searchParams]);
+  
 
   return (
     <div
@@ -71,13 +99,14 @@ const LandingPage = () => {
         height: "100vh",
         background: "gray",
       }}
-    >
+    > <Suspense fallback={<Loader />}>
       <Canvas>
         <ambientLight />
         <AboutScroll
           page="about"
           isActive={centeredScroll === "about"}
           onCenter={handleCenteredScroll}
+          onUncenter={handleUncenter}
           onKnotClick={handleKnotClick} // Pass the callback to signal knot clicks
         />
         <TestScroll2
@@ -87,6 +116,7 @@ const LandingPage = () => {
         />
         <Preload all />
       </Canvas>
+      </Suspense>
 
       {/* Overlay div used only for the transition animation */}
       <div

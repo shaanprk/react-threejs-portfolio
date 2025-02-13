@@ -15,7 +15,7 @@ import * as THREE from "three";
 import scrollModel from "../assets/models/GreenScroll.glb";
 
 // About Scroll
-const AboutScroll = ({ page, isActive, onCenter, onKnotClick }) => {
+const AboutScroll = ({ page, isActive, onCenter, onUncenter, onKnotClick }) => {
   // Load the scroll model
   const gltf = useLoader(GLTFLoader, scrollModel);
   const { scene, animations } = gltf;
@@ -303,7 +303,8 @@ const AboutScroll = ({ page, isActive, onCenter, onKnotClick }) => {
         onCenter(page);
         console.log("Updating URL to:", page);
       } else {
-        onCenter("");
+        // onCenter("");
+        onUncenter();
         setIsCentered(false);
         console.log("Updating URL to:", "");
       }
