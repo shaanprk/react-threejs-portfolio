@@ -6,7 +6,7 @@ import gsap from "gsap";
 
 // Import interactive components
 import AboutScroll from "../components/AboutScroll";
-import TestScroll2 from "../components/TestScroll2";
+import TestScroll2 from "../components/ProjectsScroll";
 import Loader from "../components/Loader";
 
 const Layout = () => {
@@ -99,7 +99,9 @@ const Layout = () => {
           <TestScroll2
             page="projects"
             isActive={centeredScroll === "projects"}
-            onOpen={handleCenteredScroll}
+            onCenter={handleCenteredScroll}
+            onUncenter={handleUncenter}
+            onKnotClick={handleKnotClick}
             resetTrigger={resetTrigger}
           />
           <Preload all />
