@@ -1,18 +1,17 @@
-// Loader.jsx
 import React from 'react';
 import { useProgress } from '@react-three/drei';
 
-const Loader = () => {
+const Preloader = () => {
   const { progress } = useProgress();
 
   return (
-    <div style={loaderStyle}>
+    <div style={preloaderStyle}>
       <h2>Loading... {progress.toFixed(0)}%</h2>
     </div>
   );
 };
 
-const loaderStyle = {
+const preloaderStyle = {
   position: 'fixed',
   top: 0,
   left: 0,
@@ -26,4 +25,4 @@ const loaderStyle = {
   zIndex: 1000,
 };
 
-export default Loader;
+export default Preloader;

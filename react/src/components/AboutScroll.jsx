@@ -17,6 +17,7 @@ import scrollModel from "../assets/models/GreenScroll.glb";
 const AboutScroll = ({
   page,
   isActive,
+  open,
   onCenter,
   onUncenter,
   onKnotClick,
@@ -152,11 +153,35 @@ const AboutScroll = ({
     action.time = Math.min(action.time, duration);
   }, [isOpen]);
 
-  // Reset internal open state when resetTrigger changes.
+
   useEffect(() => {
-    // Whenever the parent's resetTrigger changes, force the scroll closed.
+    // Whenever the parent's resetTrigger changes (i.e. URL now has ?centered=about),
+    // force the scroll closed instantly without playing the closing animation.
     setIsOpen(false);
-  }, [resetTrigger]);
+    if (actionRef.current) {
+      // Stop any running animation
+      actionRef.current.stop();
+      // Jump to the start of the clip (assumed closed state).
+      actionRef.current.time = 0;
+      // Make sure the mixer is updated so the change takes effect immediately.
+      mixer.update(0);
+    }
+  }, [resetTrigger, mixer]);
+
+  useEffect(() => {
+    if (open) {
+      // Set the internal state to open
+      setIsOpen(true);
+      if (actionRef.current) {
+        // Stop any running animation
+        actionRef.current.stop();
+        // Jump to the end of the clip (assumed open state)
+        const duration = actionRef.current.getClip().duration;
+        actionRef.current.time = duration;
+        mixer.update(0);
+      }
+    }
+  }, [open, mixer]);
 
   // Positioning logic for centering
   useEffect(() => {
@@ -267,9 +292,6 @@ const AboutScroll = ({
     e.stopPropagation();
     const knotClicked = e.intersections.some(
       (intersect) => intersect.object === knotRef.current
-    );
-    const sectionClicked = e.intersections.some(
-      (intersect) => intersect.object === contentRef.current
     );
     if (isCentered && knotClicked) {
       setIsOpen((prev) => {

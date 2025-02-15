@@ -1,48 +1,64 @@
 import React, { Suspense, useEffect, useState, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Preload } from "@react-three/drei";
+import { Preload, useProgress } from "@react-three/drei";
 import { Outlet, useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import gsap from "gsap";
 
 // Import interactive components
 import AboutScroll from "../components/AboutScroll";
 import TestScroll2 from "../components/ProjectsScroll";
-import Loader from "../components/Loader";
+import Preloader from "../components/Preloader";
 
 const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  // Get loading progress from useProgress.
+  // Note: useProgress must be used while Canvas is mounted.
+  const { progress } = useProgress();
+  const assetsLoaded = progress === 100;
+
   // State for controlling the canvas’ scroll behavior and page overlay.
   const [centeredScroll, setCenteredScroll] = useState(null);
   const [activePage, setActivePage] = useState(null);
   const [resetTrigger, setResetTrigger] = useState(0);
-
   const contentRef = useRef(); // Container for the HTML overlay content
 
   // --- Handlers for interactive canvas events ---
-
-  // When the scroll should be centered, update state and URL query.
   const handleCenteredScroll = (page) => {
     setCenteredScroll(page);
     navigate(`/?centered=${page}`);
   };
 
-  // Uncenter the scroll and reset URL.
   const handleUncenter = () => {
     setCenteredScroll(null);
     navigate("/");
   };
 
-  // When the knot is clicked, animate then update active page and URL.
   const handleKnotClick = (page) => {
     setCenteredScroll(page);
-    gsap.delayedCall(0.5, () => {
+    gsap.delayedCall(0.15, () => {
       setActivePage(page);
       navigate(`/${page}`);
     });
   };
+
+  const handleCloseOverlay = () => {
+    if (contentRef.current) {
+      gsap.to(contentRef.current, {
+        height: "0%",
+        opacity: 0,
+        duration: 0.6,
+        ease: "power2.inOut",
+        onComplete: () => {
+          setActivePage(null);
+          navigate("/?centered=about");
+        },
+      });
+    }
+  };
+
 
   // --- Animate the overlay content when activePage is set ---
   useEffect(() => {
@@ -50,10 +66,15 @@ const Layout = () => {
       gsap.fromTo(
         contentRef.current,
         { height: "0%", opacity: 0 },
-        { height: "100%", opacity: 1, duration: 0.6, ease: "circ.inOut" }
-        // { height: "100%", opacity: 1, duration: 1, ease: "power2.inOut" }
-        // { height: "100%", opacity: 1, duration: 1.4, ease: "power1.out" }
+        { height: "100%", opacity: 1, duration: 0.6, ease: "power2.inOut" }
       );
+      // const tl = gsap.timeline()
+      // tl.fromTo(
+      //   contentRef.current,
+      //   { height: "0%", opacity: 0 },
+      //   { height: "100%", opacity: 1, duration: 0.6, ease: "power2.inOut" }
+      // );
+      // tl.progress(1).progress(0);
     }
   }, [activePage]);
 
@@ -61,9 +82,7 @@ const Layout = () => {
   useEffect(() => {
     const validPages = ["home", "about", "projects", "design-philosophy"];
     const centeredParam = searchParams.get("centered");
-    // Remove the leading slash from pathname (e.g. "about")
     const path = location.pathname.replace("/", "");
-
     if (centeredParam && validPages.includes(centeredParam)) {
       setCenteredScroll(centeredParam);
       setActivePage(null);
@@ -77,24 +96,20 @@ const Layout = () => {
   }, [location, searchParams]);
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "100vh",
-        background: "gray",
-      }}
-    >
-      <Suspense fallback={<Loader />}>
+    <div style={{ position: "relative", width: "100%", height: "100vh", background: "gray" }}>
+      {/* Always render the Canvas */}
+      <Suspense fallback={null}>
         <Canvas>
           <ambientLight />
           <AboutScroll
             page="about"
-            isActive={centeredScroll === "about"}
+            isActive={centeredScroll === "about" || activePage === "about"}
+            open={activePage === "about"}
             onCenter={handleCenteredScroll}
             onUncenter={handleUncenter}
             onKnotClick={handleKnotClick}
             resetTrigger={resetTrigger}
+            assetsLoaded={assetsLoaded}
           />
           <TestScroll2
             page="projects"
@@ -108,7 +123,7 @@ const Layout = () => {
         </Canvas>
       </Suspense>
 
-      {/* Overlay container for page content with waterfall animation */}
+      {/* Render the overlay container for page content */}
       {activePage && (
         <div
           ref={contentRef}
@@ -124,12 +139,30 @@ const Layout = () => {
             background: "white",
           }}
         >
-          <Outlet />
+          <Outlet context={{ closeOverlay: handleCloseOverlay }} />
         </div>
       )}
 
-      {/* When no active overlay is needed, render the current page directly. */}
-      {/* {!activePage && <Outlet />} */}
+      {/* Overlay the Preloader until all assets are loaded */}
+      {!assetsLoaded && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "#000",
+            color: "#fff",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <h2>Loading... {progress.toFixed(0)}%</h2>
+        </div>
+      )}
     </div>
   );
 };

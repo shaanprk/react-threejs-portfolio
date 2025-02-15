@@ -1,15 +1,29 @@
-import styles from './AboutPage.module.css'
+import { Link, useOutletContext } from 'react-router-dom';
+import styles from './AboutPage.module.css';
 
-import seal from '../../assets/images/seal.png'
-import signature from '../../assets/images/signature_vertical.png'
+import seal from '../../assets/images/seal.png';
+import signature from '../../assets/images/signature_vertical.png';
 
 const AboutPage = () => {
+  const { closeOverlay } = useOutletContext();
+  
   return (
     <div className={styles.aboutPage}>
       <div className={styles.background}>
         <div className={styles.content}>
           <h1>About Page</h1>
-          <a href="https://binni.dev" target="_blank" rel="noopener noreferrer">Click Here</a>
+          {/* <Link to="/?centered=about">
+            Click Here
+          </Link> */}
+          <Link
+            to=""
+            onClick={(e) => {
+              e.preventDefault();
+              closeOverlay();
+            }}
+          >
+            Click Here
+          </Link>
           <p>Hi</p>
           <br />
           <p>Hi</p>

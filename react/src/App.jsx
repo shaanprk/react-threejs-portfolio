@@ -9,6 +9,7 @@ import ProjectsPage from "./pages/Projects/ProjectsPage.jsx";
 import DesignPhilosophyPage from "./pages/Philosophy/PhilosophyPage.jsx";
 import NotFoundPage from "./pages/NotFound/NotFoundPage.jsx";
 
+
 const App = () => {
   return (
     <Router>
