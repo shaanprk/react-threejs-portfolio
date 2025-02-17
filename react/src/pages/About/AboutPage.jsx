@@ -5,37 +5,36 @@ import knot from '../../assets/images/knot.png';
 import seal from '../../assets/images/seal.png';
 import signature from '../../assets/images/signature_vertical.png';
 
+// import KnotSVG from '../../assets/images/test.svg';
+import KnotSVG from '../../assets/images/test2.svg?react';
+
 const AboutPage = () => {
   const { closeOverlay } = useOutletContext();
   
   return (
     <div className={styles.aboutPage}>
-      <div className={styles.background}>
+      <div className={styles.knotContainer}>
+        <img
+          src={knot}
+          alt="Knot"
+          className={styles.knotImage}  
+        />
         <Link
           to=""
           onClick={(e) => {
             e.preventDefault();
             closeOverlay();
           }}
-          style={{ display: "inline-block" }}
+          className={styles.knotButton}
+          title="Close Scroll"
         >
-          <img 
-            src={knot}
-            alt="Clickable"
-            style={{ pointerEvents: "auto" }}
-          ></img>
+          <KnotSVG 
+            className={styles.knotOverlay} />
         </Link>
+      </div>
+      <div className={styles.background}>
         <div className={styles.content}>
           <h1>About Page</h1>
-          {/* <Link
-            to=""
-            onClick={(e) => {
-              e.preventDefault();
-              closeOverlay();
-            }}
-          >
-            Click Here
-          </Link> */}
           <p>Hi</p>
           <br />
           <p>Hi</p>
