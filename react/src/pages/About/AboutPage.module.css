@@ -35,3 +35,7 @@
 .seal, .signature {
     width: 7.5%;
 }
+
+img {
+    pointer-events: auto;
+}

@@ -1,6 +1,7 @@
 import { Link, useOutletContext } from 'react-router-dom';
 import styles from './AboutPage.module.css';
 
+import knot from '../../assets/images/knot.png';
 import seal from '../../assets/images/seal.png';
 import signature from '../../assets/images/signature_vertical.png';
 
@@ -10,12 +11,23 @@ const AboutPage = () => {
   return (
     <div className={styles.aboutPage}>
       <div className={styles.background}>
+        <Link
+          to=""
+          onClick={(e) => {
+            e.preventDefault();
+            closeOverlay();
+          }}
+          style={{ display: "inline-block" }}
+        >
+          <img 
+            src={knot}
+            alt="Clickable"
+            style={{ pointerEvents: "auto" }}
+          ></img>
+        </Link>
         <div className={styles.content}>
           <h1>About Page</h1>
-          {/* <Link to="/?centered=about">
-            Click Here
-          </Link> */}
-          <Link
+          {/* <Link
             to=""
             onClick={(e) => {
               e.preventDefault();
@@ -23,7 +35,7 @@ const AboutPage = () => {
             }}
           >
             Click Here
-          </Link>
+          </Link> */}
           <p>Hi</p>
           <br />
           <p>Hi</p>
